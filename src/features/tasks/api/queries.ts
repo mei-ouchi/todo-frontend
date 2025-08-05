@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { defaultApi } from './axios';
 import type{ TaskRequest, TasksDto } from '../../../api';
-import type{ AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
 
 // 全タスク取得のクエリキー
 export const TASK_QUERY_KEYS = {
@@ -21,23 +21,25 @@ export const useTasks = () => {
 };
 
 // 特定タスク取得
-export const useTask = (id: number) => {
+export const useTask = (id: number | undefined) => {
   return useQuery<TasksDto, Error>({
-    queryKey: TASK_QUERY_KEYS.details(id),
+    queryKey: ['tasks', id],
     queryFn: async () => {
+      if (id === undefined) {
+        throw new Error('実行するにはタスクIDが必要です');
+      }
       try {
         const response = await defaultApi.getTaskById(id);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-
         if (axiosError.response && axiosError.response.status === 404) {
-          throw new Error(`Task not found with ID: ${id}`);
+          throw new Error('指定されたタスクIDは見つかりませんでした。');
         }
         throw error;
       }
     },
-    enabled: !!id,
+    enabled: id !== undefined,
   });
 };
 
