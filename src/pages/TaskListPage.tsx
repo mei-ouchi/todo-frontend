@@ -100,9 +100,16 @@ const TaskListPage: React.FC = () => {
   return (
     <PageLayout>
       <Box sx={{ my: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          タスク一覧
-        </Typography>
+        {!isCreating && (
+          <Typography variant="h5" component="h2" gutterBottom sx={{
+            backgroundColor: '#c1f1d7ff',
+            color: '#000000',
+            padding: '8px 16px',
+            borderRadius: '4px',
+          }}>
+            タスク一覧
+          </Typography>
+        )}
 
         {/* ローディング表示 */}
         {isLoading && <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4 }} />}
@@ -110,12 +117,6 @@ const TaskListPage: React.FC = () => {
         {isError && <Alert severity="error">タスクの読み込みに失敗しました: {error?.message}</Alert>}
 
         <Box sx={{ mb: 4 }}>
-          {/* 新規タスク追加ボタン（フォーム非表示時のみ） */}
-          {!isCreating && (
-            <MuiButton variant="contained" onClick={() => setIsCreating(true)} sx={{ mb: 2 }}>
-              新しいタスクを追加
-            </MuiButton>
-          )}
 
           {/* 新規作成フォーム表示 */}
           {isCreating && (
@@ -137,8 +138,15 @@ const TaskListPage: React.FC = () => {
           {/* タスクが一つもない場合のメッセージ */}
           {!isCreating && tasks && tasks.length === 0 && (
             <Typography variant="h6" color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
-              タスクはありません。
+              タスクはありません
             </Typography>
+          )}
+
+          {/* 新規タスク追加ボタン（フォーム非表示時のみ） */}
+          {!isCreating && (
+            <MuiButton variant="contained" onClick={() => setIsCreating(true)} sx={{ mb: 2 }}>
+              タスクの追加
+            </MuiButton>
           )}
         </Box>
       </Box>
@@ -152,7 +160,7 @@ const TaskListPage: React.FC = () => {
       >
         <DialogTitle id="confirm-delete-dialog-title">タスクの削除</DialogTitle>
         <DialogContent>
-          <Typography>このタスクを本当に削除してもよろしいですか？</Typography>
+          <Typography>本当にこのタスクを削除してもよろしいですか？</Typography>
         </DialogContent>
         <DialogActions>
           <MuiButton onClick={handleCancelDelete} color="primary" variant="outlined">

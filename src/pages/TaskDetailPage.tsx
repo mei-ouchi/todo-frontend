@@ -80,8 +80,13 @@ const TaskDetailPage: React.FC = () => {
   return (
     <PageLayout>
       <Box sx={{ my: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          タスク詳細 / 編集
+        <Typography variant="h5" component="h2" gutterBottom sx={{
+            backgroundColor: '#c1f1d7ff',
+            color: '#000000',
+            padding: '8px 16px',
+            borderRadius: '4px',
+          }}>
+          タスク詳細
         </Typography>
         <TaskForm initialData={task} onSubmit={handleUpdateTask} onCancel={() => navigate('/')} />
       </Box>
