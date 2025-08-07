@@ -26,7 +26,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSubmit, onCancel }) 
     },
   });
 
-  const { handleSubmit, reset, control, formState: { errors } } = methods;
+  const { handleSubmit, reset, control } = methods;
 
   useEffect(() => {
     if (initialData) {
