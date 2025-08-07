@@ -86,12 +86,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSubmit, onCancel }) 
           }}
         />
 
-        {errors.dueDate && (
-            <Typography color="error" variant="caption">
-                {errors.dueDate.message}
-            </Typography>
-        )}
-
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
           <Button label="保存" type="submit" variant="contained" sx={{ mr: 1 }} />
           {onCancel && <Button label="キャンセル" variant="outlined" onClick={onCancel} />}
