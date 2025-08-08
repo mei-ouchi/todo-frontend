@@ -8,6 +8,9 @@ import PageLayout from '../components/templates/PageLayout';
 import { Box, CircularProgress, Alert, Button as MuiButton, Typography, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { taskSchema } from '../features/tasks/schemas/taskSchemas';
 
 interface ApiErrorResponse {
   message?: string;
@@ -22,6 +25,18 @@ const TaskListPage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [taskToDeleteId, setTaskToDeleteId] = useState<number | null>(null);
+
+
+  const methods = useForm<TaskFormInputs>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      status: TasksDtoStatusEnum.Pending,
+      dueDate: '',
+    },
+  });
+
   const getErrorMessage = (e: unknown): string => {
     const axiosError = e as AxiosError<ApiErrorResponse>;
     return axiosError.response?.data?.message || axiosError.message || '不明なエラーが発生しました。';
@@ -34,9 +49,10 @@ const TaskListPage: React.FC = () => {
         title: data.title,
         description: data.description || undefined,
         status: data.status,
-        dueDate: data.dueDate ? new Date(data.dueDate).toISOString().split('T')[0] : undefined,
+        dueDate: data.dueDate ? data.dueDate : undefined,
       });
       setIsCreating(false);
+      methods.reset();
     } catch (e) {
       const errorMessage = getErrorMessage(e);
       console.error('タスクの作成に失敗しました:', errorMessage);
@@ -44,7 +60,7 @@ const TaskListPage: React.FC = () => {
     }
   };
 
-  // タスク完了
+  //タスク完了
   const handleCompleteTask = async (id: number) => {
     const taskToComplete = tasks?.find((task) => task.id === id);
     if (!taskToComplete) return;
@@ -56,7 +72,7 @@ const TaskListPage: React.FC = () => {
           title: taskToComplete.title,
           description: taskToComplete.description || undefined,
           status: TasksDtoStatusEnum.Completed,
-          dueDate: taskToComplete.dueDate ? new Date(taskToComplete.dueDate).toISOString().split('T')[0] : undefined,
+          dueDate: taskToComplete.dueDate ? taskToComplete.dueDate : undefined,
         },
       });
     } catch (e) {
@@ -66,13 +82,13 @@ const TaskListPage: React.FC = () => {
     }
   };
 
-  // タスク削除確認の開始
+  //タスク削除確認の開始
   const handleDeleteTask = (id: number) => {
     setTaskToDeleteId(id);
     setShowDeleteConfirm(true);
   };
 
-  // 削除確認で削除
+  //削除確認で削除
   const handleConfirmDelete = async () => {
     if (taskToDeleteId === null) return;
     try {
@@ -86,13 +102,13 @@ const TaskListPage: React.FC = () => {
     }
   };
 
-  // 削除確認でキャンセル
+  //削除確認でキャンセル
   const handleCancelDelete = () => {
     setShowDeleteConfirm(false);
     setTaskToDeleteId(null);
   };
 
-  // タスク編集
+  //タスク編集
   const handleEditTask = (id: number) => {
     navigate(`/tasks/${id}`);
   };
@@ -111,22 +127,27 @@ const TaskListPage: React.FC = () => {
           </Typography>
         )}
 
-        {/* ローディング表示 */}
+        {/*ローディング表示*/}
         {isLoading && <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4 }} />}
-        {/* エラー表示 */}
+        {/*エラー表示*/}
         {isError && <Alert severity="error">タスクの読み込みに失敗しました: {error?.message}</Alert>}
 
         <Box sx={{ mb: 4 }}>
 
-          {/* 新規作成フォーム表示 */}
+          {/*タスク作成フォーム*/}
           {isCreating && (
-            <TaskForm
-              onSubmit={handleCreateTask}
-              onCancel={() => setIsCreating(false)}
-            />
+            <FormProvider {...methods}>
+              <TaskForm
+                onSubmit={handleCreateTask}
+                onCancel={() => {
+                  setIsCreating(false);
+                  methods.reset();
+                }}
+              />
+            </FormProvider>
           )}
 
-          {/* タスクリスト表示（フォーム非表示時かつタスクデータがある場合） */}
+          {/*タスクリスト表示*/}
           {!isCreating && tasks && tasks.length > 0 && (
             <TaskList
               tasks={tasks}
@@ -135,14 +156,14 @@ const TaskListPage: React.FC = () => {
               onEdit={handleEditTask}
             />
           )}
-          {/* タスクが一つもない場合のメッセージ */}
+          {/*タスクが一つもない場合*/}
           {!isCreating && tasks && tasks.length === 0 && (
             <Typography variant="h6" color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
               タスクはありません
             </Typography>
           )}
 
-          {/* 新規タスク追加ボタン（フォーム非表示時のみ） */}
+          {/*タスク作成ボタン*/}
           {!isCreating && (
             <MuiButton variant="contained" onClick={() => setIsCreating(true)} sx={{ mb: 2 }}>
               タスクの追加
@@ -151,7 +172,7 @@ const TaskListPage: React.FC = () => {
         </Box>
       </Box>
 
-      {/* 削除確認ダイアログ */}
+      {/*削除確認ダイアログ*/}
       <Dialog
         open={showDeleteConfirm}
         onClose={handleCancelDelete}
