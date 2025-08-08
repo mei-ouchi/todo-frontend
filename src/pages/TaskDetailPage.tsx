@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTask, useUpdateTask } from '../features/tasks/api/queries';
-import type{ TaskFormInputs } from '../features/tasks/schemas/taskSchemas';
+import type{ TaskUpdateFormInputs } from '../features/tasks/schemas/taskSchemas';
 import TaskForm from '../components/organisms/TaskForm';
 import PageLayout from '../components/templates/PageLayout';
 import { Box, CircularProgress, Alert, Typography } from '@mui/material';
 import Button from '../components/atoms/Button';
 import type { AxiosError } from 'axios';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { taskUpdateSchema } from '../features/tasks/schemas/taskSchemas';
 
 interface ApiErrorResponse {
   message?: string;
@@ -25,7 +28,34 @@ const TaskDetailPage: React.FC = () => {
     return axiosError.response?.data?.message || axiosError.message || '不明なエラーが発生しました。';
   }
 
-  const handleUpdateTask = async (data: TaskFormInputs) => {
+  const methods = useForm<TaskUpdateFormInputs>({ // <-- TaskUpdateFormInputsを使用
+    resolver: zodResolver(taskUpdateSchema), // <-- taskUpdateSchemaをresolverに指定
+    defaultValues: {
+      title: '',
+      description: '',
+      status: 'PENDING',
+      dueDate: '',
+    },
+  });
+
+  const { reset } = methods;
+
+  useEffect(() => {
+    if (task) {
+      const formattedDueDate = task.dueDate ? task.dueDate : '';
+      reset(
+        {
+          title: task.title,
+          description: task.description || '',
+          status: task.status || 'PENDING',
+          dueDate: formattedDueDate,
+        },
+        { keepErrors: false, keepDirty: false, keepIsSubmitted: false, keepTouched: false }
+      );
+    }
+  }, [task, reset]);
+
+  const handleUpdateTask = async (data: TaskUpdateFormInputs) => { // <-- TaskUpdateFormInputsを使用
     if (!taskId) return;
     try {
       await updateTaskMutation.mutateAsync({
@@ -34,7 +64,7 @@ const TaskDetailPage: React.FC = () => {
           title: data.title,
           description: data.description || undefined,
           status: data.status,
-          dueDate: data.dueDate ? new Date(data.dueDate).toISOString().split('T')[0] : undefined,
+          dueDate: data.dueDate || undefined,
         },
       });
       navigate('/');
@@ -88,7 +118,9 @@ const TaskDetailPage: React.FC = () => {
           }}>
           タスク詳細
         </Typography>
-        <TaskForm initialData={task} onSubmit={handleUpdateTask} onCancel={() => navigate('/')} />
+        <FormProvider {...methods}>
+          <TaskForm onSubmit={handleUpdateTask} onCancel={() => navigate('/')} initialData={task} />
+        </FormProvider>
       </Box>
     </PageLayout>
   );
