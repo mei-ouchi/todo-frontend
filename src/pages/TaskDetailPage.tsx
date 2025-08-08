@@ -28,8 +28,8 @@ const TaskDetailPage: React.FC = () => {
     return axiosError.response?.data?.message || axiosError.message || '不明なエラーが発生しました。';
   }
 
-  const methods = useForm<TaskUpdateFormInputs>({ // <-- TaskUpdateFormInputsを使用
-    resolver: zodResolver(taskUpdateSchema), // <-- taskUpdateSchemaをresolverに指定
+  const methods = useForm<TaskUpdateFormInputs>({
+    resolver: zodResolver(taskUpdateSchema),
     defaultValues: {
       title: '',
       description: '',
@@ -55,7 +55,7 @@ const TaskDetailPage: React.FC = () => {
     }
   }, [task, reset]);
 
-  const handleUpdateTask = async (data: TaskUpdateFormInputs) => { // <-- TaskUpdateFormInputsを使用
+  const handleUpdateTask = async (data: TaskUpdateFormInputs) => {
     if (!taskId) return;
     try {
       await updateTaskMutation.mutateAsync({
