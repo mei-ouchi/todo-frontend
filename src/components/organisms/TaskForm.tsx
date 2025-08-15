@@ -1,23 +1,24 @@
-import React from 'react'; // `useEffect`をインポート
-import { useFormContext, Controller } from 'react-hook-form'; // `useFormContext`をインポート
+import React from 'react';
+import { useFormContext, Controller } from 'react-hook-form';
 import { Box, Typography, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import Button from '../atoms/Button';
 import FormField from '../molecules/FormField';
 import type{ TaskFormInputs } from '../../features/tasks/schemas/taskSchemas';
 import { TasksDtoStatusEnum } from '../../api';
 import type{ TasksDto } from '../../api';
-
-interface TaskFormProps {
+import type { UseFormReturn } from 'react-hook-form';
+export interface TaskFormProps {
   initialData?: TasksDto;
   onSubmit: (data: TaskFormInputs) => void;
   onCancel?: () => void;
+  methods?: UseFormReturn<TaskFormInputs>;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSubmit, onCancel }) => {
-  const { handleSubmit, control } = useFormContext<TaskFormInputs>(); // `useFormContext`を使用
+  const { handleSubmit, control } = useFormContext<TaskFormInputs>();
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+    <Box component="form" role="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
       <Typography variant="h6" gutterBottom>
         {initialData ? 'タスクを編集' : '新しいタスクを作成'}
       </Typography>
