@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTask, useUpdateTask } from '../features/tasks/api/queries';
+import { useTask, useUpdateTask } from '../features/tasks/hooks/useTask';
 import type{ TaskFormInputs } from '../features/tasks/schemas/taskSchemas';
 import TaskForm from '../components/organisms/TaskForm';
 import PageLayout from '../components/templates/PageLayout';

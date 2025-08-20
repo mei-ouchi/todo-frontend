@@ -1,15 +1,37 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { defaultApi } from './axios';
+import { defaultApi } from '../api/axios';
 import type{ TaskRequest, TasksDto } from '../../../api';
 import type { AxiosError } from 'axios';
 
-// 全タスク取得のクエリキー
+//全タスク取得のクエリキー
 export const TASK_QUERY_KEYS = {
   all: ['tasks'] as const,
   details: (id: number) => ['tasks', id] as const,
 };
 
-// 全タスク取得
+export const useTaskQuery = (id?: number) => {
+  return useQuery<TasksDto, Error>({
+    queryKey: TASK_QUERY_KEYS.details(id!),
+    queryFn: async () => {
+      if (id === undefined) {
+        throw new Error('タスクIDが必要です');
+      }
+      try {
+        const response = await defaultApi.getTaskById(id);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response && axiosError.response.status === 404) {
+          throw new Error('指定されたタスクIDは見つかりませんでした。');
+        }
+        throw error;
+      }
+    },
+    enabled: id !== undefined,
+  });
+};
+
+//全タスク取得
 export const useTasks = () => {
   return useQuery<TasksDto[]>({
     queryKey: TASK_QUERY_KEYS.all,
@@ -20,7 +42,7 @@ export const useTasks = () => {
   });
 };
 
-// 特定タスク取得
+//特定タスク取得
 export const useTask = (id: number | undefined) => {
   return useQuery<TasksDto, Error>({
     queryKey: ['tasks', id],
@@ -43,7 +65,7 @@ export const useTask = (id: number | undefined) => {
   });
 };
 
-// タスク作成
+//タスク作成
 export const useCreateTask = () => {
   const queryClient = useQueryClient();
   return useMutation<TasksDto, Error, TaskRequest>({
@@ -57,7 +79,7 @@ export const useCreateTask = () => {
   });
 };
 
-// タスク更新
+//タスク更新
 export const useUpdateTask = () => {
   const queryClient = useQueryClient();
   return useMutation<TasksDto, Error, { id: number; task: TaskRequest }>({
@@ -72,7 +94,7 @@ export const useUpdateTask = () => {
   });
 };
 
-// タスク削除
+//タスク削除
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
   return useMutation<void, Error, number>({

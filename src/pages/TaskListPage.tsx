@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, } from '../features/tasks/api/queries';
+import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, } from '../features/tasks/hooks/useTask';
 import { TasksDtoStatusEnum } from '../api';
 import type { TaskFormInputs } from '../features/tasks/schemas/taskSchemas';
 import TaskList from '../components/organisms/TaskList';
