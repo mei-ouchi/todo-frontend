@@ -4,7 +4,7 @@ import { TextField as MuiTextField } from '@mui/material';
 import type{ TextFieldProps } from '@mui/material';
 import type{ TaskFormInputs } from '../../features/tasks/schemas/taskSchemas';
 
-type FormFieldProps = TextFieldProps & {
+export type FormFieldProps = TextFieldProps & {
   name: keyof TaskFormInputs;
   label: string;
 };
