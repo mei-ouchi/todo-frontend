@@ -1,8 +1,8 @@
 import React from 'react';
 import { TextField as MuiTextField } from '@mui/material';
-import type{ TextFieldProps } from '@mui/material';
+import type { TextFieldProps } from '@mui/material';
 
-type CustomTextFieldProps = TextFieldProps & {
+export type CustomTextFieldProps = TextFieldProps & {
   label: string;
 };
 
